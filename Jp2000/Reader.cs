@@ -64,6 +64,18 @@ public class Reader
         return BitConverter.ToInt16(bytes);
     }
 
+    public static UInt16 UInt16FromBytes(ReadOnlySpan<byte> data, int offset)
+    {
+        byte[] bytes = new byte[2];
+
+        data[offset..(offset + 2)].CopyTo(bytes);
+
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(bytes, 0, bytes.Length);
+
+        return BitConverter.ToUInt16(bytes);
+    }
+
     public static Int32 LongFromBytes(ReadOnlySpan<byte> data, int offset)
     {
         byte[] bytes = new byte[4];

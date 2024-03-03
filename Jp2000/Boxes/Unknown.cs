@@ -23,6 +23,11 @@ public class Unknown: BoxBase, IBox
         return true;
     }
 
+    public new bool Read(ReadOnlySpan<byte> data)
+    {
+        return true;
+    }
+
     public bool MatchBoxId(BoxHeader header) => true;
 
     public bool Parse()

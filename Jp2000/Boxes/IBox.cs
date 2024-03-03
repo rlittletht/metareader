@@ -14,6 +14,7 @@ public interface IBox
     public int BoxLength { get; }
     public long BoxLim { get; }
 
+    public bool Read(ReadOnlySpan<byte> data);
     public bool Read(Reader reader);
     public bool Parse();
     public Dictionary<string, string> ValueMap { get; }

@@ -35,7 +35,7 @@ public class Metadata
 
         long position = Tables.MagicLength;
 
-        IBox? firstBox = Box.CreateBox(reader, Tables.MagicLength);
+        IBox? firstBox = Box.CreateBox(Box.RootBoxes, reader, Tables.MagicLength);
 
         if (firstBox == null)
             return null;
@@ -60,16 +60,12 @@ public class Metadata
         // now process the rest of the boxes
         position = firstBox.BoxLim;
 
-        Box.ReadBoxesInRange(reader, position, stream.Length - position, valueMaps);
+        Box.ReadBoxesInRange(Box.RootBoxes, reader, position, stream.Length - position, valueMaps);
 
-        foreach (KeyValuePair<string, Dictionary<string, string>> kvp in valueMaps)
-        {
-            Console.WriteLine($"Box: {kvp.Key}");
-            foreach (KeyValuePair<string, string> metadataPair in kvp.Value)
-            {
-                Console.WriteLine($"{metadataPair.Key}: {metadataPair.Value}");
-            }
-        }
+        Box.EnumerateValueMaps(
+            valueMaps,
+            (key)=> Console.WriteLine($"Box: {key}"),
+            (_, key, value) => Console.WriteLine($"{key}: {value}"));
 
         return metadata;
     }

@@ -15,6 +15,15 @@ public class BoxBase
 
     public Dictionary<string, string> ValueMap { get; set; } = new Dictionary<string, string>();
 
+    public bool Read(ReadOnlySpan<byte> data)
+    {
+        DataOffset = Header.BoxStart;
+        BoxData = new byte[Header.BoxLength];
+        data[(int)DataOffset..((int)DataOffset + Header.BoxLength)].CopyTo(BoxData);
+
+        return true;
+    }
+
     public bool Read(Reader reader)
     {
         DataOffset = Header.BoxStart;

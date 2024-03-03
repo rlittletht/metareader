@@ -5,21 +5,32 @@ namespace Jp2000.Boxes;
 
 public class Jp2Header_Resolution: BoxBase, IBox
 {
-    private readonly byte[] ID = Tables.BoxId_Jp2Header_ImageHeader;
+    public static IBox[] Boxes =
+        new IBox[]
+        {
+            new Jp2Header_Resolution_CaptureResolution(),
+            new Unknown()
+        };
+
+    private readonly byte[] ID = Tables.BoxId_Jp2Header_Resolution;
 
     ReadOnlySpan<byte> IBox.ID => ID;
     ReadOnlySpan<byte> IBox.BoxData => BoxData;
 
-    public string Name => "ImageHeader";
+    public string Name => "Resolution";
 
     public bool Parse()
     {
-        // root directory is FileType
-//        Directories.Jp2Header_Resolution_CaptureResolution? dir = DirectoryBase.CreateDirectory<Jp2Header_Resolution>(this, null, 0, BoxLength, ValueMap);
-//
-//        if (dir == null) 
-//            return false;
-//
+        // This box has several sub-boxes
+        Dictionary<string, Dictionary<string, string>> valuesMaps = new();
+
+        Box.ReadBoxesInRange(Boxes, BoxData, 0, BoxLength, valuesMaps);
+
+        Box.EnumerateValueMaps(
+            valuesMaps,
+            _ => { },
+            (outerKey, key, value) => ValueMap.Add($"{outerKey}:{key}", $"{value}"));
+
         return true;
     }
 }
