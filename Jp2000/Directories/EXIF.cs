@@ -1,6 +1,7 @@
 ﻿using Jp2000.Boxes;
 using Jp2000.Directories.Records;
 using Jp2000.Directories.Records.RecordValues;
+using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.IO;
 
@@ -141,67 +142,23 @@ public class EXIF : DirectoryBase, IDirectory
     public bool Parse(IBox parent, ref long offset, Dictionary<string, IRecordValue?>? valueMap)
     {
         byte[] exifData = new byte[parent.BoxLength];
-        //        parent.BoxData[(int)ifd0Offset..(int)(ifd0Offset + ifd0Len)].CopyTo(exifData);
-        parent.BoxData[(int)offset..(int)(parent.BoxLength-offset)].CopyTo(exifData);
+        parent.BoxData[(int)offset..(int)(parent.BoxLength)].CopyTo(exifData);
 
         ByteArrayReader byteReader = new ByteArrayReader(exifData, 0, Reader.ByteOrder == ByteOrder.BigEndian);
         ExifReader exifReader = new ExifReader();
         IEnumerable<MetadataExtractor.Directory> directories = exifReader.Extract(byteReader, 0);
 
-
-        long start = offset;
-        bool fRef = Parse(HeaderRecords, parent, ref offset, valueMap);
-
-        if (valueMap == null)
-            return false;
-
-        // get the offset for the IFD0
-        if (!valueMap.TryGetValue("Ifd0Offset", out IRecordValue? ifd0Value) || ifd0Value == null || !(ifd0Value is JpInt32 ifd0ValueInt32))
-            return false;
-
-        long ifd0Offset = start + ifd0ValueInt32.Value ?? 0;
-        long ifd0Len = Length - ifd0Offset;
-
-
-        // read the number of entries
-        short entries = Reader.Int16FromBytes(parent.BoxData, (int)ifd0Offset);
-        int dirSize = 2 + 12 * entries;
-        long dirEnd = ifd0Offset + dirSize;
-        long dirEndToEnd = offset + Length - dirEnd;
-
-        for (int index = 0; index < entries; index++)
+        if (valueMap != null)
         {
-            int entryStart = (int)ifd0Offset + 2 + 12 * index;
-            int entryOffset = entryStart;
-
-            UInt16 entryId = Reader.UInt16FromBytes(parent.BoxData, entryOffset);
-            entryOffset += 2;
-            short format = Reader.Int16FromBytes(parent.BoxData, entryOffset);
-            entryOffset += 2;
-
-            int entryCount = Reader.Int32FromBytes(parent.BoxData, entryOffset);
-            entryOffset += 4;
-
-            if (!map.TryGetValue(entryId, out IRecord? entryRecord) || entryRecord == null)
+            foreach (MetadataExtractor.Directory directory in directories)
             {
-                Console.WriteLine($"Skipping IFD0 ID: {entryId}");
-                continue;
+                foreach (Tag tag in directory.Tags)
+                {
+                    valueMap.Add(tag.Name, new JpConstant(tag.Description ?? "<null>"));
+                }
             }
-
-            if (!mapFormats.TryGetValue(format, out Record.RecordValueFactoryDelegate? factory))
-            {
-                Console.WriteLine($"Skipping unknown format IFD0 ID({entryRecord.Name}: {format}");
-                continue;
-            }
-
-            if (factory != entryRecord.RecordValueFactory)
-                Console.WriteLine($"factory mismatch for record: {entryRecord.Name}: {factory} != {entryRecord.RecordValueFactory}");
-            IRecordValue value = factory!(parent.BoxData[entryOffset..(int)(dirEnd - entryOffset)]);
-            valueMap.Add(entryRecord.Name, value);
         }
-        if (m_pushedBom)
-            Reader.PopByteOrder();
 
-        return fRef;
+        return true;
     }
 }
