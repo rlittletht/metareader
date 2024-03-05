@@ -78,6 +78,11 @@ public class Uuid : BoxBase, IBox
                 int iptcStart = 16;
                 dir = DirectoryBase.CreateDirectory<IPTC>(this, null, iptcStart, BoxLength - iptcStart, ValueMap);
                 break;
+            case "XMP":
+                Name = "XMP";
+                int xmpStart = 16;
+                dir = DirectoryBase.CreateDirectory<XMP>(this, null, xmpStart, BoxLength - xmpStart, ValueMap);
+                break;
         }
 
         Box.EnumerateValueMaps(

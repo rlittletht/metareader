@@ -9,6 +9,7 @@ public class Jp2Header: BoxBase, IBox
     public static Dictionary<byte[], BoxFactoryDelegate> Boxes =
         new()
         {
+            { Tables.BoxId_Jp2Header_ImageHeader, Jp2Header_ImageHeader.StaticFactory },
             { Tables.BoxId_Jp2Header_Resolution, Jp2Header_Resolution.StaticFactory },
             { Array.Empty<byte>(), Unknown.StaticFactory }
         };

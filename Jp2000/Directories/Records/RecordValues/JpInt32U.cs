@@ -40,6 +40,6 @@ class JpInt32U : IRecordValue
         if (Value == null)
             return "<null>";
 
-        return $"0x{Value:x8}";
+        return $"0x{Value:x8} ({Value})";
     }
 }

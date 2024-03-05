@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mr", "mr.csproj", "{B985C21
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AC5DE5C6-884F-4497-BC83-6889C55679F2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetadataExtractor", "..\..\git\metadata-extractor-dotnet\MetadataExtractor\MetadataExtractor.csproj", "{631A05C8-3D8B-4A1C-8652-DEE6E5CCB9A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetadataExtractor", "..\metadata-extractor\MetadataExtractor\MetadataExtractor.csproj", "{631A05C8-3D8B-4A1C-8652-DEE6E5CCB9A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
