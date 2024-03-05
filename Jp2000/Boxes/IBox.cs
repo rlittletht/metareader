@@ -1,6 +1,9 @@
 ﻿using System.Reflection.PortableExecutable;
+using Jp2000.Directories.Records;
 
 namespace Jp2000.Boxes;
+
+public delegate IBox BoxFactoryDelegate();
 
 public interface IBox
 {
@@ -17,5 +20,5 @@ public interface IBox
     public bool Read(ReadOnlySpan<byte> data);
     public bool Read(Reader reader);
     public bool Parse();
-    public Dictionary<string, string> ValueMap { get; }
+    public Dictionary<string, IRecordValue?> ValueMap { get; }
 }

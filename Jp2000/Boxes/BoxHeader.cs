@@ -40,13 +40,13 @@ public class BoxHeader
 
     void SetFromData(ReadOnlySpan<byte> data, int start, int maxLength)
     {
-        m_boxLength = Reader.LongFromBytes(data, start);
+        m_boxLength = Reader.Int32FromBytes(data, start);
         m_headerLength = 8;
         m_id = new byte[BoxIdSize];
         data[(start + 4)..(start + 4 + BoxIdSize)].CopyTo(m_id);
         if (m_boxLength == 1)
         {
-            m_boxLength = Reader.LongLongFromBytes(data, start + 8);
+            m_boxLength = Reader.Int64FromBytes(data, start + 8);
             m_headerLength += 8;
         }
 
@@ -71,7 +71,7 @@ public class BoxHeader
             {
                 reader.Position = start;
                 m_data = reader.Read(8);
-                if (Reader.ShortFromBytes(m_data, 0) == 1)
+                if (Reader.Int16FromBytes(m_data, 0) == 1)
                 {
                     // data has to be 12 bytes because there's a 4byte box length following the 8 bytes
                     reader.Position = start;

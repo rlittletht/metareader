@@ -1,30 +1,32 @@
 ﻿using System.Reflection.PortableExecutable;
+using Jp2000.Directories.Records;
 
 namespace Jp2000.Boxes;
 
 public class Box
 {
-    public static IBox[] RootBoxes =
-        new IBox[]
+    public static Dictionary<byte[], BoxFactoryDelegate> RootBoxes =
+        new()
         {
-            new Ftyp(),
-            new Jp2Header(),
-            new Unknown()
+            { Tables.BoxId_Ftyp, Ftyp.StaticFactory },
+            { Tables.BoxId_Jp2Header, Jp2Header.StaticFactory },
+            { Tables.BoxId_Uuid, Uuid.StaticFactory },
+            { Array.Empty<byte>(), Unknown.StaticFactory }
         };
 
-    public static IBox? GetMatchingBoxHeader(IBox[] boxes, BoxHeader header)
+    public static IBox? GetMatchingBoxHeader(Dictionary<byte[], BoxFactoryDelegate> boxes, BoxHeader header)
     {
         // now look for the right box type
-        foreach (IBox box in boxes)
+        foreach (KeyValuePair<byte[], BoxFactoryDelegate> kvpBox in boxes)
         {
-            if (header.MatchesID(box.ID))
-                return box;
+            if (header.MatchesID(kvpBox.Key))
+                return kvpBox.Value();
         }
 
         return null;
     }
 
-    public static IBox? CreateBox(IBox[] boxes, ReadOnlySpan<byte> data, int start, int limit)
+    public static IBox? CreateBox(Dictionary<byte[], BoxFactoryDelegate> boxes, ReadOnlySpan<byte> data, int start, int limit)
     {
         BoxHeader header = new BoxHeader(data, start, limit);
 
@@ -43,7 +45,7 @@ public class Box
         This will read the header and create the right box type. It does NOT read
         the data (since you might not want to handle it)
     ----------------------------------------------------------------------------*/
-    public static IBox? CreateBox(IBox[] boxes, Reader reader, long offset)
+    public static IBox? CreateBox(Dictionary<byte[], BoxFactoryDelegate> boxes, Reader reader, long offset)
     {
         BoxHeader header = new BoxHeader(reader, offset);
 
@@ -55,7 +57,7 @@ public class Box
         return box;
     }
 
-    public static void ReadBoxesInRange(IBox[] boxes, ReadOnlySpan<byte> data, int start, int limit, Dictionary<string, Dictionary<string, string>> valueMaps)
+    public static void ReadBoxesInRange(Dictionary<byte[], BoxFactoryDelegate> boxes, ReadOnlySpan<byte> data, int start, int limit, Dictionary<string, Dictionary<string, IRecordValue?>> valueMaps)
     {
         int position = start;
 
@@ -79,7 +81,7 @@ public class Box
         }
     }
 
-    public static void ReadBoxesInRange(IBox[] boxes, Reader reader, long start, long length, Dictionary<string, Dictionary<string, string>> valueMaps)
+    public static void ReadBoxesInRange(Dictionary<byte[], BoxFactoryDelegate> boxes, Reader reader, long start, long length, Dictionary<string, Dictionary<string, IRecordValue?>> valueMaps)
     {
         long position = start;
 
@@ -103,12 +105,12 @@ public class Box
         }
     }
 
-    public static void EnumerateValueMaps(Dictionary<string, Dictionary<string, string>> valueMaps, Action<string> onNewKey, Action<string, string, string> onValueMap)
+    public static void EnumerateValueMaps(Dictionary<string, Dictionary<string, IRecordValue?>> valueMaps, Action<string> onNewKey, Action<string, string, IRecordValue?> onValueMap)
     {
-        foreach (KeyValuePair<string, Dictionary<string, string>> kvp in valueMaps)
+        foreach (KeyValuePair<string, Dictionary<string, IRecordValue?>> kvp in valueMaps)
         {
             onNewKey(kvp.Key);
-            foreach (KeyValuePair<string, string> metadataPair in kvp.Value)
+            foreach (KeyValuePair<string, IRecordValue?> metadataPair in kvp.Value)
             {
                 onValueMap(kvp.Key, metadataPair.Key, metadataPair.Value);
             }

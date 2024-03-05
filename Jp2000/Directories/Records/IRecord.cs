@@ -7,6 +7,7 @@ public interface IRecord
     public ReadOnlySpan<byte> Data { get; }
 
     public string Name { get; }
-    public string? Parse(ReadOnlySpan<byte> data, ref long position);
+    public IRecordValue? Parse(ReadOnlySpan<byte> data, ref long position);
     public IRecordValue RecordValueFactory(ReadOnlySpan<byte> data);
+    public Action<IRecordValue>? OnRecordParsed { get; set; }
 }

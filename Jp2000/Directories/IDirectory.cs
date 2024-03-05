@@ -1,4 +1,5 @@
 ﻿using Jp2000.Boxes;
+using Jp2000.Directories.Records;
 
 namespace Jp2000.Directories;
 
@@ -10,5 +11,5 @@ public interface IDirectory
     IDirectory? Parent { get; set; }
     IBox Box { get; }
     IBox? BoxInternal { get; set; }
-    bool Parse(IBox parent, ref long offset, Dictionary<string, string>? valueMap);
+    bool Parse(IBox parent, ref long offset, Dictionary<string, IRecordValue?>? valueMap);
 }

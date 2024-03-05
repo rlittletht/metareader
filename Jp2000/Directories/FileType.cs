@@ -32,7 +32,7 @@ public class FileType : DirectoryBase, IDirectory
             FileType.CompatibleBrandsFactory)
     };
 
-    public bool Parse(IBox parent, ref long offset, Dictionary<string, string>? valueMap) => Parse(Records, parent, ref offset, valueMap);
+    public bool Parse(IBox parent, ref long offset, Dictionary<string, IRecordValue?>? valueMap) => Parse(Records, parent, ref offset, valueMap);
 
     public static IRecordValue MinorVersionValueFactory(ReadOnlySpan<byte> data)
     {
@@ -50,20 +50,4 @@ public class FileType : DirectoryBase, IDirectory
         bytes.CopyTo(ret);
         return ret;
     }
-
-//    public bool Parse(IBox box, ref long start, Dictionary<string, string>? valueMap)
-//    {
-//        long position = start;
-//
-//        foreach (IRecord record in Records)
-//        {
-//            string? s = record.Parse(box.BoxData, ref position);
-//
-//            valueMap?.Add(record.Name, s ?? "<null>");
-//        }
-//
-//        start = position;
-//
-//        return true;
-//    }
 }

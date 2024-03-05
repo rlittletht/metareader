@@ -2,6 +2,7 @@
 using Jp2000.Boxes;
 using Jp2000.Directories;
 using System.Reflection.PortableExecutable;
+using Jp2000.Directories.Records;
 
 namespace Jp2000;
 
@@ -41,17 +42,19 @@ public class Metadata
             return null;
 
         Console.WriteLine($"Box1: {firstBox.Header?.Describe()}");
-        Dictionary<string, Dictionary<string, string>> valueMaps = new();
+        Dictionary<string, Dictionary<string, IRecordValue?>> valueMaps = new();
 
         if (firstBox is Ftyp typeBox)
         {
             firstBox.Read(reader);
             firstBox.Parse();
 
-            if (!typeBox.ValueMap.TryGetValue("MajorBrand", out string? value))
+            if (!typeBox.ValueMap.TryGetValue("MajorBrand", out IRecordValue? value))
                 throw new Exception("no ftyp record");
 
-            if (value != "image/jp2" && value != "image/jpx")
+            string sValue = value?.ToString() ?? "";
+
+            if (sValue != "image/jp2" && sValue != "image/jpx")
                 Console.WriteLine($"WARNING: Processing non jp2/jpx file: ${value}");
 
             valueMaps.Add("ftyp", firstBox.ValueMap);

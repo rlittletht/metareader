@@ -2,10 +2,10 @@
 
 namespace Jp2000.Directories.Records.RecordValues;
 
-public class RationalRecord : IRecordValue
+public class JpRational32 : IRecordValue
 {
-    private UInt16 m_num;
-    private UInt16 m_denom;
+    private Int16 m_num;
+    private Int16 m_denom;
 
     public byte[]? Value { get; private set; }
 
@@ -14,8 +14,8 @@ public class RationalRecord : IRecordValue
         Value = new byte[data.Length];
         data.CopyTo(Value);
 
-        m_num = Reader.UInt16FromBytes(data, 0);
-        m_denom = Reader.UInt16FromBytes(data, 2);
+        m_num = Reader.Int16FromBytes(data, 0);
+        m_denom = Reader.Int16FromBytes(data, 2);
     }
 
     public bool IsEqual(ReadOnlySpan<byte> data)
@@ -26,19 +26,19 @@ public class RationalRecord : IRecordValue
         return Reader.CompareBytes(Value, data);
     }
 
-    public RationalRecord(ReadOnlySpan<byte> data)
+    public JpRational32(ReadOnlySpan<byte> data)
     {
         SetFromData(data);
     }
 
     public IRecordValue Factory(ReadOnlySpan<byte> data)
     {
-        return new RationalRecord(data);
+        return new JpRational32(data);
     }
 
     public static IRecordValue StaticFactory(ReadOnlySpan<byte> data)
     {
-        return new RationalRecord(data);
+        return new JpRational32(data);
     }
 
     public override string ToString()

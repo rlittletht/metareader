@@ -22,4 +22,9 @@ public class Jp2Header_Resolution_CaptureResolution: BoxBase, IBox
 
         return true;
     }
+
+    public static IBox StaticFactory()
+    {
+        return new Jp2Header_Resolution_CaptureResolution();
+    }
 }

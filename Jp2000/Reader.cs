@@ -5,8 +5,32 @@ using Jp2000;
 
 namespace Jp2000;
 
+public enum ByteOrder
+{
+    BigEndian = 0,
+    LittleEndian = 1
+}
+
 public class Reader
 {
+    // overall, jp2000 is big endian
+
+    private static readonly List<ByteOrder> s_byteOrder = new List<ByteOrder>() { ByteOrder.BigEndian };
+
+    public static void PushByteOrder(ByteOrder b)
+    {
+        s_byteOrder.Add(b);
+    }
+
+    public static void PopByteOrder()
+    {
+        s_byteOrder.RemoveAt(s_byteOrder.Count - 1);
+    }
+
+    public static ByteOrder ByteOrder => s_byteOrder[s_byteOrder.Count - 1];
+
+    public static bool NeedByteSwap => (BitConverter.IsLittleEndian != (ByteOrder == ByteOrder.LittleEndian));
+
     private Stream m_stream;
 
     public Reader(Stream stream)
@@ -46,19 +70,19 @@ public class Reader
         if (buffer == null)
             return null;
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
             Array.Reverse(buffer, 0, 8);
 
         return BitConverter.ToInt32(buffer);
     }
 
-    public static short ShortFromBytes(ReadOnlySpan<byte> data, int offset)
+    public static short Int16FromBytes(ReadOnlySpan<byte> data, int offset)
     {
         byte[] bytes = new byte[2];
 
         data[offset..(offset + 2)].CopyTo(bytes);
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
             Array.Reverse(bytes, 0, bytes.Length);
 
         return BitConverter.ToInt16(bytes);
@@ -70,34 +94,58 @@ public class Reader
 
         data[offset..(offset + 2)].CopyTo(bytes);
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
             Array.Reverse(bytes, 0, bytes.Length);
 
         return BitConverter.ToUInt16(bytes);
     }
 
-    public static Int32 LongFromBytes(ReadOnlySpan<byte> data, int offset)
+    public static UInt32 UInt32FromBytes(ReadOnlySpan<byte> data, int offset)
     {
         byte[] bytes = new byte[4];
 
         data[offset..(offset + 4)].CopyTo(bytes);
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
+            Array.Reverse(bytes, 0, bytes.Length);
+
+        return BitConverter.ToUInt32(bytes);
+    }
+
+    public static Int32 Int32FromBytes(ReadOnlySpan<byte> data, int offset)
+    {
+        byte[] bytes = new byte[4];
+
+        data[offset..(offset + 4)].CopyTo(bytes);
+
+        if (NeedByteSwap)
             Array.Reverse(bytes, 0, bytes.Length);
 
         return BitConverter.ToInt32(bytes);
     }
 
-    public static Int64 LongLongFromBytes(ReadOnlySpan<byte> data, int offset)
+    public static Int64 Int64FromBytes(ReadOnlySpan<byte> data, int offset)
     {
         byte[] bytes = new byte[8];
 
         data[offset..(offset + 8)].CopyTo(bytes);
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
             Array.Reverse(bytes, 0, bytes.Length);
 
         return BitConverter.ToInt64(bytes);
+    }
+
+    public static UInt64 UInt64FromBytes(ReadOnlySpan<byte> data, int offset)
+    {
+        byte[] bytes = new byte[8];
+
+        data[offset..(offset + 8)].CopyTo(bytes);
+
+        if (NeedByteSwap)
+            Array.Reverse(bytes, 0, bytes.Length);
+
+        return BitConverter.ToUInt64(bytes);
     }
 
 
@@ -108,7 +156,7 @@ public class Reader
         if (buffer == null)
             return null;
 
-        if (BitConverter.IsLittleEndian)
+        if (NeedByteSwap)
             Array.Reverse(buffer, 0, 4);
 
         return BitConverter.ToInt16(buffer);

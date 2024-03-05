@@ -34,4 +34,9 @@ public class Unknown: BoxBase, IBox
     {
         return true;
     }
+
+    public static IBox StaticFactory()
+    {
+        return new Unknown();
+    }
 }

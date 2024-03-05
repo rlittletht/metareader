@@ -3,27 +3,26 @@ using Jp2000;
 
 namespace Jp2000.Directories.Records.RecordValues;
 
-class Bytes : IRecordValue
+class JpInt16 : IRecordValue
 {
-    public byte[]? Value { get; private set; }
+    public short? Value { get; private set; }
 
     public void SetFromData(ReadOnlySpan<byte> data)
     {
-        Value = new byte[data.Length];
-        data.CopyTo(Value);
+        Value = Reader.Int16FromBytes(data, 0);
     }
+
+
 
     public bool IsEqual(ReadOnlySpan<byte> other)
     {
         if (Value == null)
             return false;
-        if (Value.Length != other.Length)
-            return false;
 
-        return Reader.CompareBytes(Value, other);
+        return other[0] == Value;
     }
 
-    public Bytes(ReadOnlySpan<byte> data)
+    public JpInt16(ReadOnlySpan<byte> data)
     {
         SetFromData(data);
     }
@@ -35,7 +34,7 @@ class Bytes : IRecordValue
 
     public static IRecordValue StaticFactory(ReadOnlySpan<byte> data)
     {
-        return new Bytes(data);
+        return new JpInt16(data);
     }
 
     public override string ToString()
@@ -43,6 +42,8 @@ class Bytes : IRecordValue
         if (Value == null)
             return "<null>";
 
-        return Encoding.UTF8.GetString(Value);
+        return $"0x{Value:x4}";
+
+
     }
 }

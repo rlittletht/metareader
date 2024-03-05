@@ -22,4 +22,9 @@ public class Ftyp: BoxBase, IBox
 
         return true;
     }
+
+    public static IBox StaticFactory()
+    {
+        return new Ftyp();
+    }
 }

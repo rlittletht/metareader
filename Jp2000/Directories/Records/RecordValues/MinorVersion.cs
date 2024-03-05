@@ -19,7 +19,7 @@ public class MinorVersion: IRecordValue
     {
         return new Version
                {
-                   MM = Reader.ShortFromBytes(data, 0),
+                   MM = Reader.Int16FromBytes(data, 0),
                    M1 = data[2],
                    M2 = data[3]
                };

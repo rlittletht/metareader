@@ -23,15 +23,15 @@ public class DirectoryBase
         }
     }
 
-    public bool Parse(IRecord[] records, IBox box, ref long start, Dictionary<string, string>? valueMap)
+    public bool Parse(IRecord[] records, IBox box, ref long start, Dictionary<string, IRecordValue?>? valueMap)
     {
         long position = start;
 
         foreach (IRecord record in records)
         {
-            string? s = record.Parse(box.BoxData, ref position);
+            IRecordValue? recordValue = record.Parse(box.BoxData, ref position);
 
-            valueMap?.Add(record.Name, s ?? "<null>");
+            valueMap?.Add(record.Name, recordValue);
         }
 
         start = position;
@@ -39,7 +39,7 @@ public class DirectoryBase
         return true;
     }
 
-    public static T? CreateDirectory<T>(IBox box, IDirectory? parent, long start, long length, Dictionary<string, string>? valueMap)
+    public static T? CreateDirectory<T>(IBox box, IDirectory? parent, long start, long length, Dictionary<string, IRecordValue?>? valueMap)
         where T : class, IDirectory, new()
     {
         T t = new()

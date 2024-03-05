@@ -15,4 +15,5 @@ public class Tables
     public static byte[] BoxId_Jp2Header = "jp2h"u8.ToArray();
     public static byte[] BoxId_Jp2Header_Resolution = "res "u8.ToArray();
     public static byte[] BoxId_Jp2Header_Resolution_CaptureResolution = "resc"u8.ToArray();
+    public static byte[] BoxId_Uuid = "uuid"u8.ToArray();
 }

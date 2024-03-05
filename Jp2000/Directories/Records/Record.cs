@@ -17,20 +17,24 @@ public class Record : IRecord
 
     public IRecordValue RecordValueFactory(ReadOnlySpan<byte> data) => m_ValueFactoryDelegate?.Invoke(data) ?? throw new Exception("no record value");
 
-    public Record(string name, RecordType type, RecordLength len, Dictionary<IRecordValue, string> map)
+    public Action<IRecordValue>? OnRecordParsed { get; set; }
+
+    public Record(string name, RecordType type, RecordLength len, Dictionary<IRecordValue, string> map, RecordValueFactoryDelegate? valueFactory = null, Action<IRecordValue>? onParse = null)
     {
         Name = name;
         RecordType = type;
         Length = len;
         MapValueDescription = map;
+        OnRecordParsed = onParse;
     }
 
-    public Record(string name, RecordType type, RecordLength len, RecordValueFactoryDelegate valueFactory)
+    public Record(string name, RecordType type, RecordLength len, RecordValueFactoryDelegate valueFactory, Action<IRecordValue>? onParse = null)
     {
         RecordType = type;
         Length = len;
         Name = name;
         m_ValueFactoryDelegate = valueFactory;
+        OnRecordParsed = onParse;
     }
 
     private int LengthFromType()
@@ -89,7 +93,7 @@ public class Record : IRecord
         return -(data.Length - position);
     }
 
-    public string? Parse(ReadOnlySpan<byte> data, ref long position)
+    public IRecordValue? Parse(ReadOnlySpan<byte> data, ref long position)
     {
         int length = CalculateLength(data, position);
         if (length < 0)
@@ -109,15 +113,20 @@ public class Record : IRecord
             foreach (KeyValuePair<IRecordValue, string> kv in MapValueDescription)
             {
                 if (kv.Key.IsEqual(Data))
-                    return kv.Value;
+                {
+                    OnRecordParsed?.Invoke(kv.Key);
+                    return new RecordValues.JpConstant(kv.Value);
+                }
             }
         }
         else
         {
             IRecordValue value = RecordValueFactory(Data);
 
+            OnRecordParsed?.Invoke(value);
+
             // just return the value
-            return value.ToString();
+            return value;
         }
 
         return null;
